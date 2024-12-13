@@ -1,52 +1,71 @@
 from flask import Blueprint, jsonify, request
+import json
+from datetime import datetime
 
 bp = Blueprint('routes', __name__)
 
-# Lista de autos como base de datos simulada
-autos = [
-    {"id": 1, "marca": "Toyota", "modelo": "Corolla", "año": 2020, "precio": 20000, "color": "Blanco"},
-    {"id": 2, "marca": "Honda", "modelo": "Civic", "año": 2019, "precio": 22000, "color": "Negro"},
-    {"id": 3, "marca": "Ford", "modelo": "Mustang", "año": 2021, "precio": 35000, "color": "Rojo"},
-    {"id": 4, "marca": "Chevrolet", "modelo": "Camaro", "año": 2022, "precio": 40000, "color": "Azul"},
-    {"id": 5, "marca": "BMW", "modelo": "Serie 3", "año": 2021, "precio": 45000, "color": "Gris"},
-    {"id": 6, "marca": "Audi", "modelo": "A4", "año": 2020, "precio": 42000, "color": "Blanco"},
-    {"id": 7, "marca": "Mercedes-Benz", "modelo": "C-Class", "año": 2021, "precio": 48000, "color": "Negro"},
-    {"id": 8, "marca": "Nissan", "modelo": "Altima", "año": 2018, "precio": 18000, "color": "Plateado"},
-    {"id": 9, "marca": "Hyundai", "modelo": "Elantra", "año": 2019, "precio": 17000, "color": "Azul"},
-    {"id": 10, "marca": "Kia", "modelo": "Optima", "año": 2020, "precio": 19000, "color": "Rojo"},
-    {"id": 11, "marca": "Mazda", "modelo": "Mazda3", "año": 2021, "precio": 21000, "color": "Negro"},
-    {"id": 12, "marca": "Subaru", "modelo": "Impreza", "año": 2021, "precio": 23000, "color": "Blanco"},
-    {"id": 13, "marca": "Tesla", "modelo": "Model 3", "año": 2022, "precio": 50000, "color": "Negro"},
-    {"id": 14, "marca": "Volkswagen", "modelo": "Jetta", "año": 2019, "precio": 20000, "color": "Gris"},
-    {"id": 15, "marca": "Volvo", "modelo": "S60", "año": 2020, "precio": 30000, "color": "Blanco"},
-    {"id": 16, "marca": "Lexus", "modelo": "IS", "año": 2021, "precio": 40000, "color": "Azul"},
-    {"id": 17, "marca": "Jaguar", "modelo": "XE", "año": 2020, "precio": 42000, "color": "Negro"},
-    {"id": 18, "marca": "Porsche", "modelo": "911", "año": 2022, "precio": 90000, "color": "Rojo"},
-    {"id": 19, "marca": "Ferrari", "modelo": "Portofino", "año": 2022, "precio": 200000, "color": "Rojo"},
-    {"id": 20, "marca": "Lamborghini", "modelo": "Huracán", "año": 2022, "precio": 300000, "color": "Amarillo"}
-]
+def load_data():
+    with open('db.json', encoding='utf-8') as file:
+        return json.load(file)
+    
+def save_data(db):
+    with open('db.json', 'w', encoding='utf-8') as file:
+        json.dump(db, file, indent=4)
+    
+db = load_data()
 
 # Rutas de nuestro servicio
-@bp.route('/autos', methods=['GET'])
+@bp.route('/products', methods=['GET'])
 def get_autos():
-    return jsonify(autos)
+    return jsonify(db['products'])
 
-@bp.route('/autos/<int:auto_id>', methods=['GET'])
-def get_auto(auto_id):
-    auto = next((auto for auto in autos if auto['id'] == auto_id), None)
-    if auto:
-        return jsonify(auto)
-    return jsonify({ "error": "Auto no encontrado" }), 404
 
-@bp.route('/autos', methods=['POST'])
-def add_auto():
-    nuevo_auto = request.get_json()
-    nuevo_auto['id'] = len(autos) + 1
-    autos.append(nuevo_auto)
-    return jsonify(autos), 201
+@bp.route('/products/<string:category>', methods=['GET'])
+def get_autos_by_category(category):
+    products = [product for product in db['products'] if product['category'] == category.lower()]
+    return jsonify(products)
 
-@bp.route('/autos/<int:auto_id>', methods=['DELETE'])
-def del_auto(auto_id):
-    global autos
-    autos = [auto for auto in autos if auto['id'] != auto_id]
-    return jsonify({ "message": "Auto eliminado" })
+
+@bp.route('/orders', methods=['POST'])
+def add_order():
+    order = request.get_json()
+    order['id'] = len(db['orders']) + 1
+    order['date_created'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    db['orders'].append(order)
+    save_data(db)
+    return jsonify(db['orders']), 201
+
+
+@bp.route('/orders/<int:order_id>', methods=['PUT'])
+def update_order(order_id):
+    order = next((order for order in db['orders'] if order['id'] == order_id), None)
+    if order:
+        # Valores que no se deben de actualizar aunque el usuario las proporcione (id, date_created)
+        request.get_json().pop('id', None)
+        request.get_json().pop('date_created', None)
+
+        order['date_created'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        order.update(request.get_json())
+        save_data(db)
+        return jsonify(order)
+    return jsonify({ "error": "Orden no encontrada" }), 404
+
+
+@bp.route('/orders/<int:order_id>', methods=['DELETE'])
+def delete_order(order_id):
+    order = next((order for order in db['orders'] if order['id'] == order_id), None)
+    if order:
+        db['orders'].remove(order)
+        save_data(db)
+        return jsonify({ "message": "Orden eliminada correctamente" })
+    return jsonify({ "error": "Orden no encontrada" }), 404
+
+
+@bp.route('/authenticate', methods=['POST'])
+def authenticate():
+    credentials = request.get_json()
+
+    user = next((user for user in db['users'] if user['username'] == credentials['username']), None)
+    if user and user['password'] == credentials['password']:
+        return jsonify({ "message": "Usuario autenticado correctamente" })
+    return jsonify({ "error": "Usuario o contraseña incorrectos" }), 401

@@ -1,0 +1,113 @@
+{
+    "products": [
+        {
+            "id": 1,
+            "name": "detergente",
+            "brand": "ariel",
+            "category": "limpieza",
+            "price": 50,
+            "stock": 100,
+            "description": "detergente en polvo para lavar ropa",
+            "image_url": null
+        },
+        {
+            "id": 2,
+            "name": "shampoo",
+            "brand": "pantene",
+            "category": "higiene",
+            "price": 70,
+            "stock": 50,
+            "description": "shampoo para cabello",
+            "image_url": null
+        },
+        {
+            "id": 3,
+            "name": "pasta dental",
+            "brand": "colgate",
+            "category": "higiene",
+            "price": 30,
+            "stock": 200,
+            "description": "pasta dental con fl\u00faor",
+            "image_url": null
+        },
+        {
+            "id": 4,
+            "name": "jab\u00f3n",
+            "brand": "dove",
+            "category": "higiene",
+            "price": 25,
+            "stock": 150,
+            "description": "jab\u00f3n en barra",
+            "image_url": null
+        },
+        {
+            "id": 5,
+            "name": "leche",
+            "brand": "lala",
+            "category": "alimentos",
+            "price": 20,
+            "stock": 300,
+            "description": "leche entera",
+            "image_url": null
+        },
+        {
+            "id": 6,
+            "name": "cereal",
+            "brand": "kellogg's",
+            "category": "alimentos",
+            "price": 40,
+            "stock": 80,
+            "description": "cereal de ma\u00edz",
+            "image_url": null
+        },
+        {
+            "id": 7,
+            "name": "arroz",
+            "brand": "la merced",
+            "category": "alimentos",
+            "price": 15,
+            "stock": 120,
+            "description": "arroz blanco",
+            "image_url": null
+        },
+        {
+            "id": 8,
+            "name": "aceite",
+            "brand": "capullo",
+            "category": "alimentos",
+            "price": 35,
+            "stock": 60,
+            "description": "aceite vegetal",
+            "image_url": null
+        },
+        {
+            "id": 9,
+            "name": "galletas",
+            "brand": "gamesa",
+            "category": "alimentos",
+            "price": 25,
+            "stock": 90,
+            "description": "galletas de chocolate",
+            "image_url": null
+        },
+        {
+            "id": 10,
+            "name": "refresco",
+            "brand": "coca-cola",
+            "category": "bebidas",
+            "price": 18,
+            "stock": 250,
+            "description": "refresco de cola",
+            "image_url": null
+        }
+    ],
+    "orders": [],
+    "users": [
+        {
+            "id": 1,
+            "name": "Administrador",
+            "username": "admin",
+            "password": "passAdmin"
+        }
+    ]
+}
