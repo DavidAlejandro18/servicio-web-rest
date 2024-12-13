@@ -1,6 +1,6 @@
-from flask import Flask, jsonify, request
+from flask import Blueprint, jsonify, request
 
-app = Flask(__name__)
+bp = Blueprint('routes', __name__)
 
 # Lista de autos como base de datos simulada
 autos = [
@@ -26,53 +26,27 @@ autos = [
     {"id": 20, "marca": "Lamborghini", "modelo": "Huracán", "año": 2022, "precio": 300000, "color": "Amarillo"}
 ]
 
-# Ruta para obtener todos los autos
-@app.route('/autos', methods=['GET'])
+# Rutas de nuestro servicio
+@bp.route('/autos', methods=['GET'])
 def get_autos():
     return jsonify(autos)
 
-# Ruta para obtener un auto por ID
-@app.route('/autos/<int:auto_id>', methods=['GET'])
+@bp.route('/autos/<int:auto_id>', methods=['GET'])
 def get_auto(auto_id):
-    auto = next((auto for auto in autos if auto["id"] == auto_id), None)
+    auto = next((auto for auto in autos if auto['id'] == auto_id), None)
     if auto:
         return jsonify(auto)
-    return jsonify({"error": "Auto no encontrado"}), 404
+    return jsonify({ "error": "Auto no encontrado" }), 404
 
-# Ruta para agregar un nuevo auto
-@app.route('/autos', methods=['POST'])
+@bp.route('/autos', methods=['POST'])
 def add_auto():
     nuevo_auto = request.get_json()
-    nuevo_auto["id"] = len(autos) + 1
+    nuevo_auto['id'] = len(autos) + 1
     autos.append(nuevo_auto)
-    return jsonify(nuevo_auto), 201
+    return jsonify(autos), 201
 
-# Ruta para eliminar un auto por ID
-@app.route('/autos/<int:auto_id>', methods=['DELETE'])
-def delete_auto(auto_id):
+@bp.route('/autos/<int:auto_id>', methods=['DELETE'])
+def del_auto(auto_id):
     global autos
-    autos = [auto for auto in autos if auto["id"] != auto_id]
-    return jsonify({"message": "Auto eliminado"})
-
-if __name__ == '__main__':
-    app.run(debug=True)
-
-# Ejemplo de uso de las rutas:
-# Obtener todos los autos:
-#   GET http://127.0.0.1:5000/autos
-#
-# Obtener un auto por ID (por ejemplo, ID=1):
-#   GET http://127.0.0.1:5000/autos/1
-#
-# Agregar un nuevo auto:
-#   POST http://127.0.0.1:5000/autos
-#   Body (JSON): {
-#       "marca": "Peugeot",
-#       "modelo": "208",
-#       "año": 2023,
-#       "precio": 25000,
-#       "color": "Blanco"
-#   }
-#
-# Eliminar un auto por ID (por ejemplo, ID=1):
-#   DELETE http://127.0.0.1:5000/autos/1
+    autos = [auto for auto in autos if auto['id'] != auto_id]
+    return jsonify({ "message": "Auto eliminado" })
